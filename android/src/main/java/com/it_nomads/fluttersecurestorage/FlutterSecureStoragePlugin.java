@@ -100,7 +100,7 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler {
         return key;
     }
 
-    private Map<String, String> readAll() throws Exception {
+    public Map<String, String> readAll() throws Exception {
         @SuppressWarnings("unchecked")
         Map<String, String> raw = (Map<String, String>) preferences.getAll();
 
@@ -115,14 +115,14 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler {
         return all;
     }
 
-    private void deleteAll() {
+    public void deleteAll() {
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.clear();
         editor.commit();
     }
 
-    private void write(String key, String value) throws Exception {
+    public void write(String key, String value) throws Exception {
         byte[] result = storageCipher.encrypt(value.getBytes(charset));
         SharedPreferences.Editor editor = preferences.edit();
 
@@ -130,20 +130,20 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler {
         editor.commit();
     }
 
-    private String read(String key) throws Exception {
+    public String read(String key) throws Exception {
         String encoded = preferences.getString(key, null);
 
         return decodeRawValue(encoded);
     }
 
-    private void delete(String key) {
+    public void delete(String key) {
         SharedPreferences.Editor editor = preferences.edit();
 
         editor.remove(key);
         editor.commit();
     }
 
-    private String addPrefixToKey(String key) {
+    public String addPrefixToKey(String key) {
         return ELEMENT_PREFERENCES_KEY_PREFIX + "_" + key;
     }
 
