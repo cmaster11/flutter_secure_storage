@@ -38,7 +38,7 @@ public class FlutterSecureStoragePlugin implements MethodCallHandler {
         }
     }
 
-    private FlutterSecureStoragePlugin(Context context) throws Exception {
+    FlutterSecureStoragePlugin(Context context) throws Exception {
         preferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         charset = Charset.forName("UTF-8");
 
