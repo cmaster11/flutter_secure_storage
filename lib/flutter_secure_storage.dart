@@ -71,14 +71,30 @@ abstract class Options {
   }
 }
 
+enum IOSOptionsAccessibility {
+  whenUnlocked,
+  afterFirstUnlock,
+  whenPasscodeSetThisDeviceOnly,
+  whenUnlockedThisDeviceOnly,
+  afterFirstUnlockThisDeviceOnly,
+}
+
 class IOSOptions extends Options {
-  IOSOptions({String groupId}) : _groupId = groupId;
+  IOSOptions({
+    String groupId,
+    IOSOptionsAccessibility accessibility = IOSOptionsAccessibility.whenUnlocked,
+  })  : _groupId = groupId,
+        _accessibility = accessibility;
 
   final String _groupId;
+  final IOSOptionsAccessibility _accessibility;
 
   @override
   Map<String, String> _toMap() {
-    return <String, String>{'groupId': _groupId};
+    return <String, String>{
+      'groupId': _groupId,
+      'accessibility': _accessibility.toString(),
+    };
   }
 }
 
