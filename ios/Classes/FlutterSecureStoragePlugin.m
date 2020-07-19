@@ -47,7 +47,7 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
         NSString *key = arguments[@"key"];
         NSString *value = arguments[@"value"];
         NSString *groupId = options[@"groupId"];
-        NSString *accessibility = options[@"accessibility"];        
+        NSString *accessibility = options[@"accessibility"];
         if (![value isKindOfClass:[NSString class]]){
             result(InvalidParameters);
             return;
@@ -79,13 +79,14 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
 
 - (void)write:(NSString *)value forKey:(NSString *)key forGroup:(NSString *)groupId accessibilityAttr:(NSString *)accessibility {
     NSMutableDictionary *search = [self.query mutableCopy];
-    if(groupId != nil) {
+    if(groupId != nil && groupId != (NSString *)[NSNull null]) {
         search[(__bridge id)kSecAttrAccessGroup] = groupId;
     }
-    
+
     search[(__bridge id)kSecAttrAccount] = key;
     search[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
-    
+    search[(__bridge id)kSecAttrAccessible] = (__bridge id)accessibility;
+
     // The default setting is kSecAttrAccessibleWhenUnlocked
     CFStringRef attrAccessible = kSecAttrAccessibleWhenUnlocked;
     if (accessibility != nil) {
@@ -101,7 +102,7 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
             attrAccessible = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
         }
     }
-    
+
     OSStatus status;
     status = SecItemCopyMatching((__bridge CFDictionaryRef)search, NULL);
     if (status == noErr){
@@ -120,7 +121,7 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
         search[(__bridge id)kSecValueData] = [value dataUsingEncoding:NSUTF8StringEncoding];
         search[(__bridge id)kSecMatchLimit] = nil;
         search[(__bridge id)kSecAttrAccessible] = (__bridge id) attrAccessible;
-               
+
         status = SecItemAdd((__bridge CFDictionaryRef)search, NULL);
         if (status != noErr){
             NSLog(@"SecItemAdd status = %d", (int) status);
@@ -130,7 +131,7 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
 
 - (NSString *)read:(NSString *)key forGroup:(NSString *)groupId {
     NSMutableDictionary *search = [self.query mutableCopy];
-    if(groupId != nil) {
+    if(groupId != nil && groupId != (NSString *)[NSNull null]) {
      search[(__bridge id)kSecAttrAccessGroup] = groupId;
     }
     search[(__bridge id)kSecAttrAccount] = key;
@@ -151,7 +152,7 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
 
 - (void)delete:(NSString *)key forGroup:(NSString *)groupId {
     NSMutableDictionary *search = [self.query mutableCopy];
-    if(groupId != nil) {
+    if(groupId != nil && groupId != (NSString *)[NSNull null]) {
         search[(__bridge id)kSecAttrAccessGroup] = groupId;
     }
     search[(__bridge id)kSecAttrAccount] = key;
@@ -162,7 +163,7 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
 
 - (void)deleteAll:(NSString *)groupId {
     NSMutableDictionary *search = [self.query mutableCopy];
-    if(groupId != nil) {
+    if(groupId != nil && groupId != (NSString *)[NSNull null]) {
         search[(__bridge id)kSecAttrAccessGroup] = groupId;
     }
     SecItemDelete((__bridge CFDictionaryRef)search);
@@ -170,7 +171,7 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
 
 - (NSDictionary *)readAll:(NSString *)groupId {
     NSMutableDictionary *search = [self.query mutableCopy];
-    if(groupId != nil) {
+    if(groupId != nil && groupId != (NSString *)[NSNull null]) {
         search[(__bridge id)kSecAttrAccessGroup] = groupId;
     }
     

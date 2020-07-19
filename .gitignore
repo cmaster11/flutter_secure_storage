@@ -5,6 +5,10 @@
 
 .packages
 .pub/
+build/
+ios/.generated/
+ios/gen
+packages
 .dart_tool/
 pubspec.lock
 flutter_export_environment.sh

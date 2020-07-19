@@ -55,3 +55,30 @@ Run the following command from `example` directory
 ```
 flutter drive --target=test_driver/app.dart
 ```
+
+### iOS - kSecAttrAccessible
+
+When creating an entry you can use the `accessibility` attribute to limit the access to the value depending on the desired scenario:
+
+```dart
+enum IOSOptionsAccessibility {
+  whenUnlocked,
+  afterFirstUnlock,
+  whenPasscodeSetThisDeviceOnly,
+  whenUnlockedThisDeviceOnly,
+  afterFirstUnlockThisDeviceOnly,
+}
+
+// ...
+_myStorage.write(
+    key: myKey,
+    value: myValue,
+    iOptions: IOSOptions(
+      // Value will be accessible only after the user unlocks 
+      // the device at least one time
+      accessibility: IOSOptionsAccessibility.afterFirstUnlock,
+    ),
+  );
+```
+
+These values map directly to native iOS ones, listed at <https://developer.apple.com/documentation/security/keychain_services/keychain_items/restricting_keychain_item_accessibility?language=objc>.
