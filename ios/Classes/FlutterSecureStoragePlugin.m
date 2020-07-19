@@ -85,7 +85,6 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
 
     search[(__bridge id)kSecAttrAccount] = key;
     search[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
-    search[(__bridge id)kSecAttrAccessible] = (__bridge id)accessibility;
 
     // The default setting is kSecAttrAccessibleWhenUnlocked
     CFStringRef attrAccessible = kSecAttrAccessibleWhenUnlocked;
