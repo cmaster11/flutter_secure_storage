@@ -47,13 +47,13 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
         NSString *key = arguments[@"key"];
         NSString *value = arguments[@"value"];
         NSString *groupId = options[@"groupId"];
-        CFTypeRef accessibility = [self mapAccessibilityEnum:options[@"accessibility"]];
+        NSString *accessibility = options[@"accessibility"];
         if (![value isKindOfClass:[NSString class]]){
             result(InvalidParameters);
             return;
         }
         
-        [self write:value forKey:key forGroup:groupId withAccessibility:accessibility];
+        [self write:value forKey:key forGroup:groupId accessibilityAttr:accessibility];
         
         result(nil);
     } else if ([@"delete" isEqualToString:call.method]) {
@@ -77,15 +77,31 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
     }
 }
 
-- (void)write:(NSString *)value forKey:(NSString *)key forGroup:(NSString *)groupId withAccessibility:(CFTypeRef)accessibility {
+- (void)write:(NSString *)value forKey:(NSString *)key forGroup:(NSString *)groupId accessibilityAttr:(NSString *)accessibility {
     NSMutableDictionary *search = [self.query mutableCopy];
     if(groupId != nil && groupId != (NSString *)[NSNull null]) {
         search[(__bridge id)kSecAttrAccessGroup] = groupId;
     }
+
     search[(__bridge id)kSecAttrAccount] = key;
     search[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitOne;
-    search[(__bridge id)kSecAttrAccessible] = (__bridge id)accessibility;
-    
+
+    // The default setting is kSecAttrAccessibleWhenUnlocked
+    CFStringRef attrAccessible = kSecAttrAccessibleWhenUnlocked;
+    if (accessibility != nil) {
+        if ([accessibility isEqualToString:@"passcode"]) {
+            attrAccessible = kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly;
+        } else if ([accessibility isEqualToString:@"unlocked"]) {
+            attrAccessible = kSecAttrAccessibleWhenUnlocked;
+        } else if ([accessibility isEqualToString:@"unlocked_this_device"]) {
+            attrAccessible = kSecAttrAccessibleWhenUnlockedThisDeviceOnly;
+        } else if ([accessibility isEqualToString:@"first_unlock"]) {
+            attrAccessible = kSecAttrAccessibleAfterFirstUnlock;
+        } else if ([accessibility isEqualToString:@"first_unlock_this_device"]) {
+            attrAccessible = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
+        }
+    }
+
     OSStatus status;
     status = SecItemCopyMatching((__bridge CFDictionaryRef)search, NULL);
     if (status == noErr){
@@ -93,7 +109,7 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
         
         NSDictionary *update = @{
             (__bridge id)kSecValueData: [value dataUsingEncoding:NSUTF8StringEncoding],
-            (__bridge id)kSecAttrAccessible: (__bridge id)accessibility
+            (__bridge id)kSecAttrAccessible: (__bridge id) attrAccessible,
         };
         
         status = SecItemUpdate((__bridge CFDictionaryRef)search, (__bridge CFDictionaryRef)update);
@@ -103,7 +119,8 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
     }else{
         search[(__bridge id)kSecValueData] = [value dataUsingEncoding:NSUTF8StringEncoding];
         search[(__bridge id)kSecMatchLimit] = nil;
-        
+        search[(__bridge id)kSecAttrAccessible] = (__bridge id) attrAccessible;
+
         status = SecItemAdd((__bridge CFDictionaryRef)search, NULL);
         if (status != noErr){
             NSLog(@"SecItemAdd status = %d", (int) status);
@@ -179,27 +196,6 @@ static NSString *const InvalidParameters = @"Invalid parameter's type";
     }
     
     return @{};
-}
-
-- (CFTypeRef)mapAccessibilityEnum:(NSString *)value {
-    if ([value isEqual:@"IOSOptionsAccessibility.afterFirstUnlock"]) {
-        return kSecAttrAccessibleAfterFirstUnlock;
-    }
-    
-    if ([value isEqual:@"IOSOptionsAccessibility.whenPasscodeSetThisDeviceOnly"]) {
-        return kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly;
-    }
-    
-    if ([value isEqual:@"IOSOptionsAccessibility.whenUnlockedThisDeviceOnly"]) {
-        return kSecAttrAccessibleWhenUnlockedThisDeviceOnly;
-    }
-    
-    if ([value isEqual:@"IOSOptionsAccessibility.afterFirstUnlockThisDeviceOnly"]) {
-        return kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
-    }
-    
-    // By default, follow https://developer.apple.com/documentation/security/keychain_services/keychain_items/restricting_keychain_item_accessibility
-    return kSecAttrAccessibleWhenUnlocked;
 }
 
 @end

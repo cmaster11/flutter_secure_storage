@@ -1,3 +1,10 @@
+## [3.3.3]
+* Fix compatibility with non-AndroidX project. [AndroidX Migration](https://flutter.dev/docs/development/androidx-migration) is recommended.
+
+## [3.3.2]
+* Migrate to Android v2 embedder.
+* Adds support for specifying [iOS Keychain Item Accessibility](https://developer.apple.com/documentation/security/keychain_services/keychain_items/restricting_keychain_item_accessibility?language=objc).
+
 ## [3.3.1+2]
 * Fix iOS build warning [Issue 30](https://github.com/mogol/flutter_secure_storage/issues/30)
 

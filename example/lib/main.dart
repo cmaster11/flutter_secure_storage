@@ -48,7 +48,7 @@ class _ItemsWidgetState extends State<ItemsWidget> {
       key: key,
       value: value,
       iOptions: IOSOptions(
-        accessibility: IOSOptionsAccessibility.afterFirstUnlock,
+        accessibility: IOSAccessibility.first_unlock,
       ),
     );
     _readAll();
@@ -126,7 +126,7 @@ class _ItemsWidgetState extends State<ItemsWidget> {
             key: item.key,
             value: result,
             iOptions: IOSOptions(
-              accessibility: IOSOptionsAccessibility.afterFirstUnlock,
+              accessibility: IOSAccessibility.first_unlock,
             ),
           );
           _readAll();
